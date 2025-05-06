@@ -24,15 +24,14 @@ namespace HerikaCommProxy
             {
                 try
                 {
-                    long passedRequests = _cacheTools.HitCount("passed");
+                    long totalRequests = _cacheTools.HitCount("total");
                     long droppedRequests = _cacheTools.HitCount("dropped");
-                    long total = passedRequests + droppedRequests;
                     double percent = 0.0;
 
                     if (droppedRequests > 0)
-                        percent = total / droppedRequests;
+                        percent = ((double)droppedRequests / (double)totalRequests) * 100;
 
-                    _logger.LogInformation("{0:000000} of {1:000000} requests dropped.  {3:00.00}%", droppedRequests, total, percent);
+                    _logger.LogInformation("{0:000000} of {1:000000} requests dropped.  {2:00.00}%", droppedRequests, totalRequests, percent);
                 }
                 catch (Exception ex)
                 {

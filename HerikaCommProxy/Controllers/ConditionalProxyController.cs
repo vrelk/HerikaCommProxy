@@ -52,7 +52,7 @@ namespace HerikaCommProxy.Controllers
 
                 var gameRequest = decodedData.Split('|', 4);
 
-                long count = cacheTools.HitCount(gameRequest[0], true);
+                _ = cacheTools.HitCount("total", true); // total requests
 
                 // check if the request is one of the ones we might discard
                 if (discardTypes.Contains(gameRequest[0]))
@@ -63,14 +63,14 @@ namespace HerikaCommProxy.Controllers
                         //Console.ForegroundColor = ConsoleColor.DarkYellow;
                         //Console.WriteLine(DateTime.Now.ToLongTimeString() + " Duplicate {0}. Terminating. ({1:000000})", gameRequest[0], count);
                         //Console.ResetColor();
-                        
 
+                        _ = cacheTools.HitCount("dropped", true); // dropped requests
                         Response.ContentType = "text/html; charset=UTF-8";
                         return Ok();
                     }
                     else
                     {
-                        _memoryCache.Set(CacheKeyPrefix + gameRequest[0], gameRequest[3], TimeSpan.FromSeconds(10));
+                        _memoryCache.Set(CacheKeyPrefix + gameRequest[0], gameRequest[3], TimeSpan.FromSeconds(10)); // 10 second cache
 
                         // Proxy the request using YARP
                         //Console.WriteLine(DateTime.Now.ToLongTimeString() + " {0} Length: {1:0000}  ({2:000000})", gameRequest[0], gameRequest[3].Length, count);
@@ -87,7 +87,7 @@ namespace HerikaCommProxy.Controllers
                 }
                  else
                 */
-                    Console.WriteLine(DateTime.Now.ToLongTimeString() + " {0} Length: {1:0000}  ({2:000000})", gameRequest[0], gameRequest[3].Length, count);
+                    //Console.WriteLine(DateTime.Now.ToLongTimeString() + " {0} Length: {1:0000}  ({2:000000})", gameRequest[0], gameRequest[3].Length, count);
                 // Proxy the request using YARP
                 return await ProxyRequest(HttpContext, DATA);
             }
