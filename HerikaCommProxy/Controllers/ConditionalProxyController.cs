@@ -151,9 +151,7 @@ namespace HerikaCommProxy.Controllers
                 // Let YARP handle the base request transformation
                 await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
 
-                // Explicitly encode the DATA query parameter and use the correct upstream URL
-                var encodedData = HttpUtility.UrlEncode(_data);
-                proxyRequest.RequestUri = new Uri($"{UpstreamBaseUrl}comm.php?DATA={encodedData}");
+                proxyRequest.RequestUri = new Uri($"{UpstreamBaseUrl}comm.php?DATA={_data}");
                 //Console.WriteLine($"Constructed URI: {proxyRequest.RequestUri}");
             }
         }
