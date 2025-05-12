@@ -86,7 +86,15 @@ namespace HerikaCommProxy
             try
             {
                 Assembly assembly = Assembly.GetExecutingAssembly();
-                FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+                string path = assembly.Location;
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                        path = "HerikaCommProxy.exe";
+                    else
+                        path = "HerikaCommProxy";
+                }
+                FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(path);
                 string currentVersion = fileVersionInfo.ProductVersion;
 
                 var (updateAvailable, latestVersion) = await checker.CheckForUpdateAsync("vrelk", "HerikaCommProxy", currentVersion);
