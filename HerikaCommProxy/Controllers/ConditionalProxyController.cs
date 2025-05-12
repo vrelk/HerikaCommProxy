@@ -20,7 +20,6 @@ namespace HerikaCommProxy.Controllers
         private static readonly string Destination = "upstream";
 
         private readonly List<string> discardTypes = ["infonpc"];
-        private readonly List<string> logTypes = ["user_input", "inputtext", "chat", "_speech"];
 
         private readonly CacheTools cacheTools;
 
@@ -60,10 +59,6 @@ namespace HerikaCommProxy.Controllers
                     // check if the data is different from the cache
                     if (!IsNewInfo(gameRequest[0], gameRequest[3]))
                     {
-                        //Console.ForegroundColor = ConsoleColor.DarkYellow;
-                        //Console.WriteLine(DateTime.Now.ToLongTimeString() + " Duplicate {0}. Terminating. ({1:000000})", gameRequest[0], count);
-                        //Console.ResetColor();
-
                         _ = cacheTools.HitCount("dropped", true); // dropped requests
                         Response.ContentType = "text/html; charset=UTF-8";
                         return Ok();
@@ -78,16 +73,6 @@ namespace HerikaCommProxy.Controllers
                     }
                 }
 
-                /*
-                if (logTypes.Contains(gameRequest[0]))
-                {
-                    Console.ForegroundColor = ConsoleColor.DarkYellow;
-                    Console.WriteLine(DateTime.Now.ToLongTimeString() + " {0} Length: {1:0000}  ({2:000000}) -- {3}", gameRequest[0], gameRequest[3].Length, count, gameRequest[3]);
-                    Console.ResetColor();
-                }
-                 else
-                */
-                    //Console.WriteLine(DateTime.Now.ToLongTimeString() + " {0} Length: {1:0000}  ({2:000000})", gameRequest[0], gameRequest[3].Length, count);
                 // Proxy the request using YARP
                 return await ProxyRequest(HttpContext, DATA);
             }
@@ -151,8 +136,17 @@ namespace HerikaCommProxy.Controllers
                 // Let YARP handle the base request transformation
                 await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
 
-                proxyRequest.RequestUri = new Uri($"{UpstreamBaseUrl}comm.php?DATA={_data}");
-                //Console.WriteLine($"Constructed URI: {proxyRequest.RequestUri}");
+                // Preserve the exact base64 string by using RequestMessageExtensions.SetRequestUri method
+                // which bypasses the normal URL encoding
+                var uri = new Uri($"{UpstreamBaseUrl}comm.php");
+
+                // Create a custom URL that preserves the exact characters
+                string exactUrl = $"{uri.AbsoluteUri}?DATA={_data}";
+
+                // Set the RequestUri property directly without going through URL normalization
+                typeof(HttpRequestMessage)
+                    .GetProperty("RequestUri")
+                    .SetValue(proxyRequest, new Uri(exactUrl));
             }
         }
 
