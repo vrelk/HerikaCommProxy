@@ -1,3 +1,6 @@
+using System.Diagnostics;
+using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Yarp.ReverseProxy.Configuration;
@@ -6,7 +9,7 @@ namespace HerikaCommProxy
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -70,7 +73,64 @@ namespace HerikaCommProxy
 
             app.MapControllers();
 
+            await CheckVersionAsync();
+
+
             app.Run();
+        }
+
+        private static async Task CheckVersionAsync()
+        {
+            var checker = new GitHubVersionChecker();
+
+            try
+            {
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+                string currentVersion = fileVersionInfo.ProductVersion;
+
+                var (updateAvailable, latestVersion) = await checker.CheckForUpdateAsync("vrelk", "HerikaCommProxy", currentVersion);
+
+                if (!updateAvailable)
+                {
+                    string message = "https://github.com/vrelk/HerikaCommProxy/releases";
+                    
+                    latestVersion = $"Update available! Latest version: {latestVersion}";
+                    currentVersion = $"Current version: {currentVersion}";
+
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.BackgroundColor = ConsoleColor.DarkRed;
+                    Console.WriteLine(new string(' ', Console.WindowWidth));
+                    Console.WriteLine(new string(' ', Console.WindowWidth));
+                    Console.WriteLine(latestVersion + new string(' ', Console.WindowWidth - latestVersion.Length));
+                    Console.WriteLine(currentVersion + new string(' ', Console.WindowWidth - currentVersion.Length));
+                    Console.WriteLine(new string(' ', Console.WindowWidth));
+                    Console.WriteLine(message + new string(' ', Console.WindowWidth - message.Length));
+                    Console.WriteLine(new string(' ', Console.WindowWidth));
+                    Console.WriteLine(new string(' ', Console.WindowWidth));
+                    Console.ResetColor();
+                    Console.Write("\n\n\n");
+                }
+                else
+                {
+                    Console.BackgroundColor = ConsoleColor.DarkGreen;
+                    Console.WriteLine("                            ");
+                    Console.WriteLine("                            ");
+                    Console.BackgroundColor = ConsoleColor.Black;
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine("Your software is up to date.");
+                    Console.BackgroundColor = ConsoleColor.DarkGreen;
+                    Console.WriteLine("                            ");
+                    Console.WriteLine("                            ");
+                    Console.ResetColor();
+                    Console.Write("\n\n\n");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking for updates: {ex.Message}");
+            }
+
         }
     }
 }
