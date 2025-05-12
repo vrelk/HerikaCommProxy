@@ -97,17 +97,18 @@ namespace HerikaCommProxy
                     
                     latestVersion = $"Update available! Latest version: {latestVersion}";
                     currentVersion = $"Current version: {currentVersion}";
+                    int width = Console.WindowWidth - 1;
 
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.BackgroundColor = ConsoleColor.DarkRed;
-                    Console.WriteLine(new string(' ', Console.WindowWidth));
-                    Console.WriteLine(new string(' ', Console.WindowWidth));
-                    Console.WriteLine(latestVersion + new string(' ', Console.WindowWidth - latestVersion.Length));
-                    Console.WriteLine(currentVersion + new string(' ', Console.WindowWidth - currentVersion.Length));
-                    Console.WriteLine(new string(' ', Console.WindowWidth));
-                    Console.WriteLine(message + new string(' ', Console.WindowWidth - message.Length));
-                    Console.WriteLine(new string(' ', Console.WindowWidth));
-                    Console.WriteLine(new string(' ', Console.WindowWidth));
+                    Console.WriteLine(new string(' ', width));
+                    Console.WriteLine(new string(' ', width));
+                    Console.WriteLine(latestVersion + new string(' ', width - latestVersion.Length));
+                    Console.WriteLine(currentVersion + new string(' ', width - currentVersion.Length));
+                    Console.WriteLine(new string(' ', width));
+                    Console.WriteLine(message + new string(' ', width - message.Length));
+                    Console.WriteLine(new string(' ', width));
+                    Console.WriteLine(new string(' ', width));
                     Console.ResetColor();
                     Console.Write("\n\n\n");
                 }
